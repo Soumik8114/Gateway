@@ -1,0 +1,96 @@
+{% extends "tenants/base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<main class="auth-page">
+	<section class="card auth-card" aria-label="Sign in">
+		<header class="auth-header">
+			<div class="brand brand--auth">
+				<div class="brand__icon" aria-hidden="true">
+					<span class="material-symbols-outlined">hub</span>
+				</div>
+				<div class="brand__text">
+					<h1 class="brand__title">API Gateway</h1>
+					<p class="brand__subtitle">Tenant Admin</p>
+				</div>
+			</div>
+
+			<div class="auth-copy">
+				<h2 class="auth-title">Welcome back</h2>
+				<p class="muted">Sign in to manage your APIs, billing, and usage.</p>
+			</div>
+		</header>
+
+		{% if messages %}
+		<div class="alerts" role="status" aria-live="polite">
+			{% for message in messages %}
+			<div class="alert {% if message.tags %}alert--{{ message.tags }}{% endif %}">
+				{{ message }}
+			</div>
+			{% endfor %}
+		</div>
+		{% endif %}
+
+		<form class="form" method="post" action="">
+			{% csrf_token %}
+			{% if next %}
+			<input type="hidden" name="next" value="{{ next }}" />
+			{% endif %}
+
+			<div class="form__group">
+				<label class="label" for="id_username">Username</label>
+				<input
+					class="input"
+					id="id_username"
+					name="username"
+					type="text"
+					autocomplete="username"
+					required
+					autofocus
+					placeholder="Enter your username" />
+			</div>
+
+			<div class="form__group">
+				<label class="label" for="id_password">Password</label>
+				<div class="input-wrap">
+					<input
+						class="input input--with-icon"
+						id="id_password"
+						name="password"
+						type="password"
+						autocomplete="current-password"
+						required
+						placeholder="Enter your password" />
+					<button
+						class="icon-btn icon-btn--small input-icon"
+						type="button"
+						data-password-toggle
+						aria-label="Show password"
+						aria-pressed="false"
+						title="Show password">
+						<span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+					</button>
+				</div>
+			</div>
+
+			<div class="form__row">
+				<label class="check">
+					<input class="check__input" type="checkbox" name="remember" />
+					<span class="check__label">Remember me</span>
+				</label>
+				<a class="link" href="#" aria-disabled="true">Forgot password?</a>
+			</div>
+
+			<button class="btn btn--primary btn--full" type="submit">
+				Sign in
+			</button>
+
+			<p class="auth-footer muted small">
+				Don’t have an account?
+				<a class="link" href="#" aria-disabled="true">Contact admin</a>
+			</p>
+		</form>
+	</section>
+</main>
+{% endblock %}
