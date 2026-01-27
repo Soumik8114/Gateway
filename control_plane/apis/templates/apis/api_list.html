@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My APIs - API Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sparkline-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 0;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<aside class="w-64 flex-shrink-0 bg-white dark:bg-[#111722] border-r border-slate-200 dark:border-[#232f48] flex flex-col justify-between p-4">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-primary rounded-lg p-1.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">hub</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-tight">API Gateway</h1>
+<p class="text-[#92a4c9] text-xs font-normal">Tenant Admin</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary group" href="#">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+<p class="text-sm font-medium">My APIs</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">payments</span>
+<p class="text-sm font-medium">Billing</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">menu_book</span>
+<p class="text-sm font-medium">Documentation</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<p class="text-sm font-medium">Settings</p>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<div class="p-3 bg-slate-800/50 rounded-lg">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Plan Usage</span>
+<span class="text-[10px] text-primary font-bold">80%</span>
+</div>
+<div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[80%]"></div>
+</div>
+</div>
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold transition-opacity hover:opacity-90">
+<span class="truncate">Register New API</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-y-auto">
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-[#232f48] px-8 py-6 bg-white/50 dark:bg-[#111722]/50 backdrop-blur-md sticky top-0 z-10">
+<div>
+<h2 class="text-slate-900 dark:text-white text-2xl font-bold tracking-tight">My APIs</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Register and manage your API endpoints</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 rounded-lg px-4 py-2.5 bg-primary text-white text-sm font-bold hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Register New API
+                </button>
+</div>
+</header>
+<div class="p-8 space-y-6">
+<div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+<div class="relative w-full md:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 text-sm bg-white dark:bg-[#1a2130] border border-slate-200 dark:border-[#324467] rounded-lg focus:ring-1 focus:ring-primary placeholder:text-slate-500 text-slate-200" placeholder="Search by name or URL..." type="text"/>
+</div>
+<div class="flex gap-3 w-full md:w-auto">
+<select class="flex-1 md:w-40 bg-white dark:bg-[#1a2130] border-slate-200 dark:border-[#324467] text-sm rounded-lg text-slate-700 dark:text-slate-300 px-3 py-2 focus:ring-primary ring-0">
+<option value="">All Statuses</option>
+<option value="active">Active</option>
+<option value="paused">Paused</option>
+<option value="deprecated">Deprecated</option>
+</select>
+<select class="flex-1 md:w-40 bg-white dark:bg-[#1a2130] border-slate-200 dark:border-[#324467] text-sm rounded-lg text-slate-700 dark:text-slate-300 px-3 py-2 focus:ring-primary ring-0">
+<option value="">All Methods</option>
+<option value="GET">GET</option>
+<option value="POST">POST</option>
+<option value="PUT">PUT</option>
+<option value="DELETE">DELETE</option>
+</select>
+<button class="p-2.5 rounded-lg border border-slate-200 dark:border-[#324467] bg-white dark:bg-[#1a2130] text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1a2130] rounded-xl border border-slate-200 dark:border-[#324467] overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/30 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
+<th class="px-6 py-4">API Name</th>
+<th class="px-6 py-4">Base URL</th>
+<th class="px-6 py-4">Method</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Avg. Latency</th>
+<th class="px-6 py-4">24h Traffic</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-[#232f48]">
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-500 text-lg">api</span>
+</div>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">User Auth Service</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-slate-500 dark:text-slate-400">api.gateway.io/v1/auth/*</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-bold rounded">POST</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
+<span class="text-xs font-medium text-slate-300">Active</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-slate-400">124ms</td>
+<td class="px-6 py-5">
+<div class="w-24 h-8">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+<path d="M0,30 L10,25 L20,35 L30,20 L40,25 L50,15 L60,25 L70,10 L80,15 L90,5 L100,20" fill="none" stroke="#135bec" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</td>
+<td class="px-6 py-5 text-right relative">
+<button class="material-symbols-outlined text-slate-500 hover:text-white text-xl p-1 rounded-md hover:bg-slate-800 transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-purple-500 text-lg">inventory_2</span>
+</div>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Inventory Sync</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-slate-500 dark:text-slate-400">api.gateway.io/v2/stock/*</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 bg-purple-500/10 text-purple-500 text-[10px] font-bold rounded">PUT</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-amber-500"></div>
+<span class="text-xs font-medium text-slate-300">Paused</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-slate-400">--</td>
+<td class="px-6 py-5">
+<div class="w-24 h-8 opacity-40">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+<path d="M0,35 L100,35" fill="none" stroke="#64748b" stroke-dasharray="4" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="material-symbols-outlined text-slate-500 hover:text-white text-xl p-1 rounded-md hover:bg-slate-800 transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-500 text-lg">analytics</span>
+</div>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Reports Export</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-slate-500 dark:text-slate-400">api.gateway.io/v1/reports/*</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold rounded">GET</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
+<span class="text-xs font-medium text-slate-300">Active</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-slate-400">285ms</td>
+<td class="px-6 py-5">
+<div class="w-24 h-8">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+<path d="M0,35 L20,30 L40,32 L60,15 L80,10 L100,5" fill="none" stroke="#135bec" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="material-symbols-outlined text-slate-500 hover:text-white text-xl p-1 rounded-md hover:bg-slate-800 transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-red-500 text-lg">history</span>
+</div>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Legacy Payments</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="text-xs font-mono text-slate-500 dark:text-slate-400">api.gateway.io/old/v0/pay/*</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-2.5 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold rounded">DELETE</span>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-red-500"></div>
+<span class="text-xs font-medium text-slate-300">Deprecated</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-mono text-slate-400">92ms</td>
+<td class="px-6 py-5">
+<div class="w-24 h-8 opacity-60">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+<path d="M0,10 L25,15 L50,25 L75,30 L100,38" fill="none" stroke="#ef4444" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="material-symbols-outlined text-slate-500 hover:text-white text-xl p-1 rounded-md hover:bg-slate-800 transition-colors">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-slate-200 dark:border-[#324467] flex items-center justify-between">
+<p class="text-xs text-slate-500 font-medium">Showing <span class="text-slate-200">1 to 4</span> of 12 APIs</p>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-lg border border-slate-700 bg-white/5 text-slate-500 hover:text-white disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="size-8 rounded-lg bg-primary text-white text-xs font-bold">1</button>
+<button class="size-8 rounded-lg text-slate-400 hover:bg-white/5 text-xs font-bold">2</button>
+<button class="size-8 rounded-lg text-slate-400 hover:bg-white/5 text-xs font-bold">3</button>
+</div>
+<button class="p-1.5 rounded-lg border border-slate-700 bg-white/5 text-slate-500 hover:text-white">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<footer class="mt-auto px-8 py-6 border-t border-slate-200 dark:border-[#232f48] flex justify-between items-center text-slate-500 text-[11px]">
+<p>© 2023 API Gateway Management. All rights reserved.</p>
+<div class="flex gap-4 font-medium">
+<a class="hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-white transition-colors" href="#">Status Page</a>
+<a class="hover:text-white transition-colors" href="#">Support</a>
+</div>
+</footer>
+</main>
+</div>
+<div class="hidden absolute top-0 left-0 z-50 w-48 bg-white dark:bg-[#1a2130] border border-slate-200 dark:border-[#324467] rounded-lg shadow-xl overflow-hidden">
+<button class="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">edit</span> Edit API
+    </button>
+<button class="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">pause_circle</span> Pause Service
+    </button>
+<div class="h-px bg-slate-700 mx-2"></div>
+<button class="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+<span class="material-symbols-outlined text-sm">delete</span> Remove API
+    </button>
+</div>
+
+</body></html>
