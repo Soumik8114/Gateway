@@ -51,7 +51,7 @@ def tenant_dashboard(request):
         'api_keys': api_keys,
         'api_form': api_form,
         'api_key_form': api_key_form,
-        'fastapi_base_url': 'http://localhost:8000'
+        'fastapi_base_url': 'http://localhost:7000'
     }
 
     return render(request, "tenants/dashboard.html", context)
