@@ -49,7 +49,17 @@ billing_plan = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column("requests_per_minute", Integer),
+    Column("requests_per_month", Integer),
     Column("is_active", Boolean),
+)
+
+apis_client = Table(
+    "apis_client",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("tenant_id", Integer, ForeignKey("tenants_tenant.id")),
+    Column("plan_id", Integer, ForeignKey("billing_plan.id")),
+    Column("client_id", String),
 )
 
 apis_apikey = Table(
@@ -153,24 +163,60 @@ async def proxy_request(
     if not key_record:
         raise HTTPException(status_code=403, detail="Invalid or inactive API Key")
 
-    # Get Plan
-    query = billing_plan.select().where(billing_plan.c.id == key_record['plan_id'])
-    plan = await database.fetch_one(query)
+    # Check for X-Client-ID
+    client_id = request.headers.get("X-Client-ID")
+    active_plan = None
+    client_record = None
 
-    if not plan or not plan['is_active']:
+    if client_id:
+        query = apis_client.select().where(
+            (apis_client.c.client_id == client_id) &
+            (apis_client.c.tenant_id == tenant['id'])
+        )
+        client_record = await database.fetch_one(query)
+        if not client_record:
+            raise HTTPException(status_code=403, detail="Invalid Client ID")
+
+        query = billing_plan.select().where(billing_plan.c.id == client_record['plan_id'])
+        active_plan = await database.fetch_one(query)
+
+    # Get API Key Plan if no client plan
+    if not active_plan:
+        query = billing_plan.select().where(billing_plan.c.id == key_record['plan_id'])
+        active_plan = await database.fetch_one(query)
+
+    if not active_plan or not active_plan['is_active']:
          raise HTTPException(status_code=403, detail="Plan invalid")
 
-    # Key: rate_limit:{api_key_id}:{minute_timestamp}
+    # Rate Limiting
+    if client_record:
+        rate_limit_key_base = f"rate_limit_client:{client_record['id']}"
+    else:
+        rate_limit_key_base = f"rate_limit:{key_record['id']}"
+
+    # Minute Limit
     current_minute = int(time.time() // 60)
-    rate_limit_key = f"rate_limit:{key_record['id']}:{current_minute}"
+    rate_limit_key_min = f"{rate_limit_key_base}:{current_minute}"
 
-    # Increment and get value
-    request_count = await redis_client.incr(rate_limit_key)
-    if request_count == 1:
-        await redis_client.expire(rate_limit_key, 60) # Expire after 1 minute
+    request_count_min = await redis_client.incr(rate_limit_key_min)
+    if request_count_min == 1:
+        await redis_client.expire(rate_limit_key_min, 60) # Expire after 1 minute
 
-    if request_count > plan['requests_per_minute']:
+    if request_count_min > active_plan['requests_per_minute']:
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
+
+    # Monthly Limit
+    if active_plan['requests_per_month'] is not None:
+        current_time = time.gmtime()
+        current_month_str = f"{current_time.tm_year}-{current_time.tm_mon}"
+        rate_limit_key_month = f"{rate_limit_key_base}:month:{current_month_str}"
+
+        request_count_month = await redis_client.incr(rate_limit_key_month)
+        if request_count_month == 1:
+            await redis_client.expire(rate_limit_key_month, 60 * 60 * 24 * 32) # Approx 1 month
+
+        if request_count_month > active_plan['requests_per_month']:
+            raise HTTPException(status_code=429, detail="Monthly rate limit exceeded")
 
     # Ensure upstream_base_url doesn't have trailing slash and path doesn't have leading slash duplication
     upstream_base = api['upstream_base_url'].rstrip('/')

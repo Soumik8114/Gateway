@@ -34,3 +34,13 @@ class APIKey(models.Model):
 
     def __str__(self):
         return f"APIKey({self.tenant.slug})"
+
+class Client(models.Model):
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.PROTECT)
+    client_id = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.tenant.slug} - {self.name} ({self.client_id})"
