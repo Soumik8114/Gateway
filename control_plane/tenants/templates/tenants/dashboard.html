@@ -21,7 +21,7 @@
                         <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
                         <span class="nav__label">Dashboard</span>
                     </a>
-                    <a class="nav__link" href="#">
+                    <a class="nav__link" href="{% url 'register-api' %}">
                         <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
                         <span class="nav__label">My APIs</span>
                     </a>
@@ -53,7 +53,7 @@
             <div class="content">
 
                 {% if messages %}
-                <div class="messages" style="margin-bottom: 20px;">
+                <div class="messages" id="messages" style="margin-bottom: 20px;">
                     {% for message in messages %}
                     <div class="alert" style="padding: 15px; background: #333; color: #fff; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid #135bec;">
                         {{ message }}
@@ -144,36 +144,33 @@
 
                     <!-- Forms Column -->
                     <div class="stack">
-                        <!-- Register API Form -->
+                        <!-- Register API Link -->
                         <section class="card card--padded">
                             <h3 class="card__title">Register New API</h3>
-                            <form method="post" action="{% url 'create-api' %}">
-                                {% csrf_token %}
-                                {% for field in api_form %}
-                                <div style="margin-bottom: 1rem;">
-                                    <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}
-                                    <div style="color: #ff6b6b; font-size: 0.8em; margin-top: 4px;">{{ field.errors.0 }}</div>
-                                    {% endif %}
-                                </div>
-                                {% endfor %}
-                                <button class="btn btn--primary" type="submit" style="width: 100%;">
-                                    <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">add_box</span>
-                                    Register API
-                                </button>
-                            </form>
+                            <p style="margin-bottom: 1rem; color: #888; font-size: 0.9em;">Create a new API entry in a separate page.</p>
+                            <a class="btn btn--primary" href="{% url 'register-api' %}" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                                <span class="material-symbols-outlined" style="font-size: 1.2em;">add_box</span>
+                                Go to API Registration
+                            </a>
                         </section>
 
                         <!-- Generate Key Form -->
                         <section class="card card--padded">
                             <h3 class="card__title">Generate API Key</h3>
                             <p style="margin-bottom: 1rem; color: #888; font-size: 0.9em;">Create a new API key with a specific rate limit plan.</p>
-                            <form method="post" action="{% url 'create-api-key' %}">
+                            <form method="post" action="{% url 'create-api-key' %}" id="api-key-form">
                                 {% csrf_token %}
                                 <div style="margin-bottom: 1rem;">
-                                    <label for="{{ api_key_form.plan.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Select Plan</label>
-                                    {{ api_key_form.plan }}
+                                    <label for="{{ api_key_form.plan_name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Plan Name</label>
+                                    {{ api_key_form.plan_name }}
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="{{ api_key_form.requests_per_minute.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Requests per Minute</label>
+                                    {{ api_key_form.requests_per_minute }}
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="{{ api_key_form.requests_per_month.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Requests per Month</label>
+                                    {{ api_key_form.requests_per_month }}
                                 </div>
                                 <button class="btn btn--primary" type="submit" style="width: 100%;">
                                     <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">key</span>
@@ -190,4 +187,85 @@
             </footer>
         </main>
     </div>
+
+    <script>
+        (function () {
+            const form = document.getElementById('api-key-form');
+            if (!form) return;
+
+            const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            };
+
+            const ensureMessages = () => {
+                let container = document.getElementById('messages');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'messages';
+                    container.className = 'messages';
+                    container.style.marginBottom = '20px';
+                    const content = document.querySelector('.content');
+                    if (content) {
+                        content.prepend(container);
+                    }
+                }
+                return container;
+            };
+
+            const pushMessage = (text, isSuccess = true) => {
+                const container = ensureMessages();
+                const alert = document.createElement('div');
+                alert.className = 'alert';
+                alert.style.padding = '15px';
+                alert.style.background = '#333';
+                alert.style.color = '#fff';
+                alert.style.borderRadius = '4px';
+                alert.style.marginBottom = '10px';
+                alert.style.borderLeft = `4px solid ${isSuccess ? '#135bec' : '#ff6b6b'}`;
+                alert.textContent = text;
+                container.prepend(alert);
+            };
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const csrfToken = getCookie('csrftoken');
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': csrfToken || ''
+                        },
+                        body: formData
+                    });
+
+                    const payload = await response.json();
+                    if (response.ok && payload.success) {
+                        pushMessage(payload.message, true);
+                        form.reset();
+                    } else {
+                        if (payload.errors) {
+                            Object.values(payload.errors).forEach((errors) => {
+                                if (Array.isArray(errors)) {
+                                    errors.forEach((msg) => pushMessage(msg, false));
+                                } else {
+                                    pushMessage(String(errors), false);
+                                }
+                            });
+                        } else {
+                            pushMessage('Failed to create API Key.', false);
+                        }
+                    }
+                } catch (error) {
+                    pushMessage('Failed to create API Key.', false);
+                }
+            });
+        })();
+    </script>
 {% endblock content %}

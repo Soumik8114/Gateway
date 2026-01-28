@@ -1,0 +1,81 @@
+{% extends "tenants/base.html" %}
+{% block title %}Register API{% endblock %}
+{% block content %}
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar__top">
+                <div class="brand">
+                    <div class="brand__icon" aria-hidden="true">
+                        <span class="material-symbols-outlined">hub</span>
+                    </div>
+                    <div class="brand__text">
+                        <h1 class="brand__title">API Gateway</h1>
+                        <p class="brand__subtitle">Tenant Admin</p>
+                    </div>
+                </div>
+                <nav class="nav">
+                    <a class="nav__link" href="{% url 'tenant-dashboard' %}">
+                        <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
+                        <span class="nav__label">Dashboard</span>
+                    </a>
+                    <a class="nav__link nav__link--active" href="{% url 'register-api' %}" aria-current="page">
+                        <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
+                        <span class="nav__label">Register API</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar__left">
+                    <h2 class="topbar__title">Register New API</h2>
+                </div>
+                <div class="topbar__right">
+                    <div class="user">
+                        <div class="user__meta" aria-label="Signed in user">
+                            <p class="user__name">{{ request.user.username }}</p>
+                            <p class="user__plan">{{ tenant.name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                {% if messages %}
+                <div class="messages" style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                    <div class="alert" style="padding: 15px; background: #333; color: #fff; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid #135bec;">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <section class="card card--padded" style="max-width: 560px;">
+                    <h3 class="card__title">API Details</h3>
+                    <form method="post" action="{% url 'register-api' %}">
+                        {% csrf_token %}
+                        {% for field in api_form %}
+                        <div style="margin-bottom: 1rem;">
+                            <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div style="color: #ff6b6b; font-size: 0.8em; margin-top: 4px;">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <button class="btn btn--primary" type="submit" style="width: 100%;">
+                            <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">add_box</span>
+                            Register API
+                        </button>
+                    </form>
+                </section>
+            </div>
+
+            <footer class="footer">
+                <p>© 2023 API Gateway Management.</p>
+            </footer>
+        </main>
+    </div>
+{% endblock content %}

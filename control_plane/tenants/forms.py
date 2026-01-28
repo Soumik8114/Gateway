@@ -1,6 +1,5 @@
 from django import forms
 from apis.models import API, APIKey
-from billing.models import Plan
 
 class APIForm(forms.ModelForm):
     class Meta:
@@ -14,8 +13,15 @@ class APIForm(forms.ModelForm):
         }
 
 class APIKeyForm(forms.Form):
-    plan = forms.ModelChoiceField(
-        queryset=Plan.objects.all(),
-        widget=forms.Select(attrs={'class': 'select'}),
-        empty_label="Select a Plan"
+    plan_name = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'input', 'placeholder': 'Starter Plan'})
+    )
+    requests_per_minute = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'input', 'placeholder': '60'})
+    )
+    requests_per_month = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'input', 'placeholder': '10000'})
     )

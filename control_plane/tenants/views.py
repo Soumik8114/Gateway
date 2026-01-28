@@ -42,19 +42,46 @@ def tenant_dashboard(request):
     apis = API.objects.filter(tenant=tenant)
     api_keys = APIKey.objects.filter(tenant=tenant).select_related('plan')
 
-    api_form = APIForm()
     api_key_form = APIKeyForm()
 
     context = {
         'tenant': tenant,
         'apis': apis,
         'api_keys': api_keys,
-        'api_form': api_form,
         'api_key_form': api_key_form,
         'fastapi_base_url': 'http://localhost:7000'
     }
 
     return render(request, "tenants/dashboard.html", context)
+
+@login_required
+def register_api(request):
+    try:
+        tenant = request.user.tenant
+    except Tenant.DoesNotExist:
+        return render(request, "tenants/no_tenant.html")
+
+    if request.method == 'POST':
+        form = APIForm(request.POST)
+        if form.is_valid():
+            api = form.save(commit=False)
+            api.tenant = tenant
+            api.save()
+            messages.success(request, f"API '{api.name}' created successfully.")
+            return redirect('tenant-dashboard')
+
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f"{field}: {error}")
+    else:
+        form = APIForm()
+
+    context = {
+        'tenant': tenant,
+        'api_form': form,
+    }
+
+    return render(request, "tenants/register_api.html", context)
 
 @login_required
 @require_POST
@@ -87,7 +114,12 @@ def create_api_key(request):
 
     form = APIKeyForm(request.POST)
     if form.is_valid():
-        plan = form.cleaned_data['plan']
+        plan = Plan.objects.create(
+            name=form.cleaned_data['plan_name'],
+            requests_per_minute=form.cleaned_data['requests_per_minute'],
+            requests_per_month=form.cleaned_data['requests_per_month'],
+            is_active=True
+        )
         raw_key, hashed_key = APIKey.generate_key()
 
         APIKey.objects.create(
@@ -95,9 +127,16 @@ def create_api_key(request):
             plan=plan,
             hashed_key=hashed_key
         )
+        success_message = f"New API Key created: {raw_key} (Save this, it won't be shown again!)"
 
-        messages.success(request, f"New API Key created: {raw_key} (Save this, it won't be shown again!)")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': success_message})
+
+        messages.success(request, success_message)
     else:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
         messages.error(request, "Failed to create API Key.")
 
     return redirect('tenant-dashboard')
