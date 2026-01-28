@@ -9,6 +9,7 @@ class API(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField()
     upstream_base_url = models.URLField()
+    auth_header_name = models.CharField(max_length=100, default='X-API-Key')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
