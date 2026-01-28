@@ -3,8 +3,7 @@
 {% block content %}
     <div class="app-shell">
         <!-- Sidebar Navigation -->
-        <aside
-            class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar__top">
                 <!-- Branding -->
                 <div class="brand">
@@ -30,303 +29,164 @@
                         <span class="material-symbols-outlined" aria-hidden="true">payments</span>
                         <span class="nav__label">Billing</span>
                     </a>
-                    <a class="nav__link" href="#">
-                        <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
-                        <span class="nav__label">Documentation</span>
-                    </a>
-                    <a class="nav__link" href="#">
-                        <span class="material-symbols-outlined" aria-hidden="true">settings</span>
-                        <span class="nav__label">Settings</span>
-                    </a>
                 </nav>
             </div>
-            <div class="sidebar__bottom">
-                <div class="usage-card">
-                    <div class="usage-card__row">
-                        <span class="usage-card__label">Plan Usage</span>
-                        <span class="usage-card__value">80%</span>
-                    </div>
-                    <div class="progress" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress__bar" style="width: 80%"></div>
-                    </div>
-                </div>
-                <button class="btn btn--primary btn--full" type="button">
-                    <span class="btn__label">Register New API</span>
-                </button>
-            </div>
         </aside>
+
         <!-- Main Content Area -->
         <main class="main">
             <!-- Top Navbar -->
-            <header
-                class="topbar">
+            <header class="topbar">
                 <div class="topbar__left">
                     <h2 class="topbar__title">Dashboard Overview</h2>
-                    <div class="search">
-                        <span class="material-symbols-outlined search__icon" aria-hidden="true">search</span>
-                        <input class="search__input" placeholder="Search resources..." type="text" />
-                    </div>
                 </div>
                 <div class="topbar__right">
-                    <button class="icon-btn" type="button" aria-label="Notifications">
-                        <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
-                        <span class="notification-dot" aria-hidden="true"></span>
-                    </button>
-                    <button class="icon-btn" type="button" aria-label="Chat">
-                        <span class="material-symbols-outlined" aria-hidden="true">chat_bubble</span>
-                    </button>
-                    <div class="divider" role="separator" aria-orientation="vertical"></div>
                     <div class="user">
                         <div class="user__meta" aria-label="Signed in user">
-                            <p class="user__name">Alex Rivera</p>
-                            <p class="user__plan">Pro Account</p>
-                        </div>
-                        <div class="avatar"
-                            data-alt="User avatar placeholder with a geometric pattern"
-                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAQErtxcmUpdAtI8tkUZnNbIcDCjqp_ezbcShlLb25keOy8AcALpeoIjUYex7qowmOEbx0CLIy88HI9ruMj97ZtrkxdhIuQq_V4PXWrj690azkk08wWw0aQfASqlYUkGDMLfAHVNYd3Oq4eQ50qyiHvIRlYwe0dnKCT1tgEAInUMKz8FpaoJxxUvlsAvR_yQid7nS0HUrnnGHtDpXlmhzxpYA2beDC8XlYP9K_xm8euyJ8F__vtgH85tLXcWg6hV7NXldiysoskGw");'>
+                            <p class="user__name">{{ request.user.username }}</p>
+                            <p class="user__plan">{{ tenant.name }}</p>
                         </div>
                     </div>
                 </div>
             </header>
+
             <div class="content">
-                <!-- Stats Row -->
-                <div class="grid grid--stats">
-                    <section class="card stat">
-                        <div class="stat__top">
-                            <p class="muted">Total API Calls</p>
-                            <span class="badge badge--success">+5.2%</span>
-                        </div>
-                        <p class="stat__value">1,248,392</p>
-                        <p class="muted small">Last 30 days: 1,186,000</p>
-                    </section>
-                    <section class="card stat">
-                        <div class="stat__top">
-                            <p class="muted">Active Endpoints</p>
-                            <span class="badge badge--neutral">Stable</span>
-                        </div>
-                        <p class="stat__value">12/15</p>
-                        <p class="muted small">Usage: 80% capacity</p>
-                    </section>
-                    <section class="card stat">
-                        <div class="stat__top">
-                            <p class="muted">Current Month Billing</p>
-                            <span class="badge badge--primary">+12%</span>
-                        </div>
-                        <p class="stat__value">$245.50</p>
-                        <p class="muted small">Next invoice: Oct 1, 2023</p>
-                    </section>
+
+                {% if messages %}
+                <div class="messages" style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                    <div class="alert" style="padding: 15px; background: #333; color: #fff; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid #135bec;">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
                 </div>
+                {% endif %}
+
                 <div class="grid grid--main">
-                    <!-- Traffic Chart Column -->
+                    <!-- Tables Column -->
                     <div class="stack stack--main">
-                        <section class="card">
-                            <div class="card__header card__header--split">
-                                <div>
-                                    <h3 class="card__title">API Traffic (Last 7 Days)</h3>
-                                    <p class="muted small">Aggregate calls across all endpoints</p>
-                                </div>
-                                <select class="select" aria-label="Traffic range">
-                                    <option>Last 7 Days</option>
-                                    <option>Last 30 Days</option>
-                                </select>
-                            </div>
-                            <div class="card__body">
-                                <div class="kpi">
-                                    <span class="kpi__value">8.4M</span>
-                                    <span class="kpi__delta kpi__delta--up">+8% vs prev week</span>
-                                </div>
-                                <div class="chart">
-                                    <svg class="chart__svg" fill="none" preserveaspectratio="none" viewbox="0 0 500 150">
-                                        <path
-                                            d="M0 120 C 50 110, 80 40, 120 40 S 180 130, 240 100 S 300 20, 360 20 S 420 90, 500 30 V 150 H 0 Z"
-                                            fill="url(#chartGradient)"></path>
-                                        <path
-                                            d="M0 120 C 50 110, 80 40, 120 40 S 180 130, 240 100 S 300 20, 360 20 S 420 90, 500 30"
-                                            stroke="#135bec" stroke-linecap="round" stroke-width="3"></path>
-                                        <defs>
-                                            <lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                                                <stop offset="0%" stop-color="#135bec" stop-opacity="0.2"></stop>
-                                                <stop offset="100%" stop-color="#135bec" stop-opacity="0"></stop>
-                                            </lineargradient>
-                                        </defs>
-                                    </svg>
-                                    <div class="chart__labels" aria-hidden="true">
-                                        <span>Mon</span>
-                                        <span>Tue</span>
-                                        <span>Wed</span>
-                                        <span>Thu</span>
-                                        <span>Fri</span>
-                                        <span>Sat</span>
-                                        <span>Sun</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                        <!-- Recent Endpoints Table -->
+
+                        <!-- APIs Table -->
                         <section class="card">
                             <div class="card__header">
-                                <h3 class="card__title">Recent Endpoints</h3>
+                                <h3 class="card__title">My APIs</h3>
                             </div>
                             <div class="table-wrap">
-                                <table class="table" aria-label="Recent endpoints">
+                                <table class="table">
                                     <thead>
-                                        <tr
-                                            class="table__head-row">
-                                            <th>Endpoint Name</th>
-                                            <th>Method</th>
-                                            <th>Status</th>
-                                            <th>Latency</th>
-                                            <th></th>
+                                        <tr class="table__head-row">
+                                            <th>Name</th>
+                                            <th>Slug</th>
+                                            <th>Upstream</th>
+                                            <th>Access Link</th>
                                         </tr>
                                     </thead>
                                     <tbody class="table__body">
+                                        {% for api in apis %}
                                         <tr class="table__row">
                                             <td>
                                                 <div class="endpoint">
-                                                    <span
-                                                        class="endpoint__name">user_auth_service</span>
-                                                    <span class="endpoint__path">v1/auth/login</span>
+                                                    <span class="endpoint__name">{{ api.name }}</span>
                                                 </div>
                                             </td>
-                                                <span
-                                                    class="pill pill--blue">POST</span>
-                                            </td>
+                                            <td>{{ api.slug }}</td>
+                                            <td>{{ api.upstream_base_url }}</td>
                                             <td>
-                                                <div class="status">
-                                                    <span class="dot dot--green" aria-hidden="true"></span>
-                                                    <span class="status__label">Active</span>
-                                                </div>
-                                            </td>
-                                            <td class="mono">124ms</td>
-                                            <td class="table__actions">
-                                                <button class="icon-btn icon-btn--small" type="button" aria-label="More actions">
-                                                    <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
-                                                </button>
+                                                <code style="background: #2a2a2a; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; color: #4af;">
+                                                    {{ fastapi_base_url }}/{{ tenant.slug }}/{{ api.slug }}/
+                                                </code>
                                             </td>
                                         </tr>
+                                        {% empty %}
                                         <tr class="table__row">
-                                            <td>
-                                                <div class="endpoint">
-                                                    <span
-                                                        class="endpoint__name">inventory_sync</span>
-                                                    <span class="endpoint__path">v2/stock/update</span>
-                                                </div>
-                                            </td>
-                                                <span
-                                                    class="pill pill--purple">PUT</span>
-                                            </td>
-                                            <td>
-                                                <div class="status">
-                                                    <span class="dot dot--amber" aria-hidden="true"></span>
-                                                    <span class="status__label">Paused</span>
-                                                </div>
-                                            </td>
-                                            <td class="mono">--</td>
-                                            <td class="table__actions">
-                                                <button class="icon-btn icon-btn--small" type="button" aria-label="More actions">
-                                                    <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
-                                                </button>
-                                            </td>
+                                            <td colspan="4" style="text-align: center; padding: 20px; color: #888;">No APIs registered yet.</td>
                                         </tr>
-                                        <tr class="table__row">
-                                            <td>
-                                                <div class="endpoint">
-                                                    <span
-                                                        class="endpoint__name">analytics_export</span>
-                                                    <span class="endpoint__path">v1/reports/monthly</span>
-                                                </div>
-                                            </td>
-                                                <span
-                                                    class="pill pill--green">GET</span>
-                                            </td>
-                                            <td>
-                                                <div class="status">
-                                                    <span class="dot dot--green" aria-hidden="true"></span>
-                                                    <span class="status__label">Active</span>
-                                                </div>
-                                            </td>
-                                            <td class="mono">285ms</td>
-                                            <td class="table__actions">
-                                                <button class="icon-btn icon-btn--small" type="button" aria-label="More actions">
-                                                    <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="card__footer card__footer--center">
-                                <button class="link" type="button">View All Endpoints</button>
+                        </section>
+
+                        <!-- API Keys Table -->
+                        <section class="card">
+                            <div class="card__header">
+                                <h3 class="card__title">Active API Keys</h3>
+                            </div>
+                            <div class="table-wrap">
+                                <table class="table">
+                                    <thead>
+                                        <tr class="table__head-row">
+                                            <th>Key ID (Hash)</th>
+                                            <th>Plan Limit</th>
+                                            <th>Created At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table__body">
+                                        {% for key in api_keys %}
+                                        <tr class="table__row">
+                                            <td class="mono" title="{{ key.hashed_key }}">...{{ key.hashed_key|slice:"-8:" }}</td>
+                                            <td>
+                                                <span class="pill pill--blue">{{ key.plan.requests_per_minute }} req/min</span>
+                                                <span style="font-size: 0.8em; color: #888;">{{ key.plan.name }}</span>
+                                            </td>
+                                            <td>{{ key.created_at|date:"M d, Y" }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr class="table__row">
+                                            <td colspan="3" style="text-align: center; padding: 20px; color: #888;">No API Keys generated yet.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </section>
                     </div>
-                    <!-- Sidebar Content Area -->
+
+                    <!-- Forms Column -->
                     <div class="stack">
-                        <!-- Quick Actions Section -->
+                        <!-- Register API Form -->
                         <section class="card card--padded">
-                            <h3 class="card__title">Quick Actions</h3>
-                            <div class="stack stack--tight">
-                                <button class="action action--primary" type="button">
-                                    <span class="material-symbols-outlined" aria-hidden="true">add_box</span>
-                                    <span class="action__label">Register New API</span>
+                            <h3 class="card__title">Register New API</h3>
+                            <form method="post" action="{% url 'create-api' %}">
+                                {% csrf_token %}
+                                {% for field in api_form %}
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                    <div style="color: #ff6b6b; font-size: 0.8em; margin-top: 4px;">{{ field.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                <button class="btn btn--primary" type="submit" style="width: 100%;">
+                                    <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">add_box</span>
+                                    Register API
                                 </button>
-                                <button class="action" type="button">
-                                    <span class="material-symbols-outlined" aria-hidden="true">key</span>
-                                    <span class="action__label">Rotate API Keys</span>
-                                </button>
-                                <button class="action" type="button">
-                                    <span class="material-symbols-outlined" aria-hidden="true">auto_graph</span>
-                                    <span class="action__label">View Detailed Logs</span>
-                                </button>
-                                <button class="action" type="button">
-                                    <span class="material-symbols-outlined" aria-hidden="true">share</span>
-                                    <span class="action__label">Invite Collaborator</span>
-                                </button>
-                            </div>
+                            </form>
                         </section>
-                        <!-- Platform Health -->
+
+                        <!-- Generate Key Form -->
                         <section class="card card--padded">
-                            <h3 class="card__title">Platform Health</h3>
-                            <div class="stack stack--tight">
-                                <div class="health">
-                                    <div class="health__left">
-                                        <span class="dot dot--green" aria-hidden="true"></span>
-                                        <span class="health__name">US East Region</span>
-                                    </div>
-                                    <span class="health__value">99.98%</span>
+                            <h3 class="card__title">Generate API Key</h3>
+                            <p style="margin-bottom: 1rem; color: #888; font-size: 0.9em;">Create a new API key with a specific rate limit plan.</p>
+                            <form method="post" action="{% url 'create-api-key' %}">
+                                {% csrf_token %}
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="{{ api_key_form.plan.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Select Plan</label>
+                                    {{ api_key_form.plan }}
                                 </div>
-                                <div class="health">
-                                    <div class="health__left">
-                                        <span class="dot dot--green" aria-hidden="true"></span>
-                                        <span class="health__name">Europe Central</span>
-                                    </div>
-                                    <span class="health__value">100%</span>
-                                </div>
-                                <div class="health">
-                                    <div class="health__left">
-                                        <span class="dot dot--amber dot--pulse" aria-hidden="true"></span>
-                                        <span class="health__name">Asia Pacific</span>
-                                    </div>
-                                    <span class="health__value">98.4%</span>
-                                </div>
-                            </div>
-                            <div class="notice">
-                                <p class="notice__title">System Notice</p>
-                                <p class="notice__text">Scheduled maintenance in US-East on Saturday 02:00 UTC. Expect minimal latency increases.</p>
-                            </div>
+                                <button class="btn btn--primary" type="submit" style="width: 100%;">
+                                    <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">key</span>
+                                    Generate Key
+                                </button>
+                            </form>
                         </section>
                     </div>
                 </div>
             </div>
-            <!-- Footer Branding -->
-            <footer
-                class="footer">
-                <p>© 2023 API Gateway Management. All rights reserved.</p>
-                <div class="footer__links">
-                    <a class="footer__link" href="#">Privacy Policy</a>
-                    <a class="footer__link" href="#">Status Page</a>
-                    <a class="footer__link" href="#">Support</a>
-                </div>
+
+            <footer class="footer">
+                <p>© 2023 API Gateway Management.</p>
             </footer>
         </main>
     </div>
