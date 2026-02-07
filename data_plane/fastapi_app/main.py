@@ -1,6 +1,7 @@
 import hashlib
 import time
 import os
+import json
 import logging
 from typing import Optional
 from contextlib import asynccontextmanager
@@ -76,6 +77,24 @@ REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
 redis_client = None
 http_client = None
 
+CACHE_TTL = 60
+
+async def get_cached_value(key: str):
+    if redis_client:
+        try:
+            data = await redis_client.get(key)
+            if data:
+                return json.loads(data)
+        except Exception as e:
+            logger.warning(f"Redis get failed for {key}: {e}")
+    return None
+
+async def set_cached_value(key: str, value: dict, ttl: int = CACHE_TTL):
+    if redis_client:
+        try:
+            await redis_client.set(key, json.dumps(value), ex=ttl)
+        except Exception as e:
+            logger.warning(f"Redis set failed for {key}: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -134,23 +153,35 @@ async def proxy_request(
 ):
     hashed_key = hashlib.sha256(api_key.encode()).hexdigest()
     # Check Tenant
-    query = tenants_tenant.select().where(
-        (tenants_tenant.c.slug == tenant_slug) &
-        (tenants_tenant.c.is_active == True)
-    )
-    tenant = await database.fetch_one(query)
+    tenant_cache_key = f"tenant:{tenant_slug}"
+    tenant = await get_cached_value(tenant_cache_key)
+
     if not tenant:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+        query = tenants_tenant.select().where(
+            (tenants_tenant.c.slug == tenant_slug) &
+            (tenants_tenant.c.is_active == True)
+        )
+        tenant_record = await database.fetch_one(query)
+        if not tenant_record:
+            raise HTTPException(status_code=404, detail="Tenant not found")
+        tenant = dict(tenant_record)
+        await set_cached_value(tenant_cache_key, tenant)
 
     # Check API
-    query = apis_api.select().where(
-        (apis_api.c.tenant_id == tenant['id']) &
-        (apis_api.c.slug == api_slug) &
-        (apis_api.c.is_active == True)
-    )
-    api = await database.fetch_one(query)
+    api_cache_key = f"api:{tenant['id']}:{api_slug}"
+    api = await get_cached_value(api_cache_key)
+
     if not api:
-        raise HTTPException(status_code=404, detail="API not found")
+        query = apis_api.select().where(
+            (apis_api.c.tenant_id == tenant['id']) &
+            (apis_api.c.slug == api_slug) &
+            (apis_api.c.is_active == True)
+        )
+        api_record = await database.fetch_one(query)
+        if not api_record:
+            raise HTTPException(status_code=404, detail="API not found")
+        api = dict(api_record)
+        await set_cached_value(api_cache_key, api)
 
     # Check API Key
     query = apis_apikey.select().where(
