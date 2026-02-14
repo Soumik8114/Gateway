@@ -157,15 +157,22 @@
                             <p style="margin-bottom: 1rem; color: #888; font-size: 0.9em;">Create a new API entry from the dashboard.</p>
                             <form method="post" action="{% url 'create-api' %}" id="api-form">
                                 {% csrf_token %}
-                                {% for field in api_form %}
                                 <div style="margin-bottom: 1rem;">
-                                    <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}
-                                    <div style="color: #ff6b6b; font-size: 0.8em; margin-top: 4px;">{{ field.errors.0 }}</div>
-                                    {% endif %}
+                                    <label for="api-name" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Name</label>
+                                    <input class="input" type="text" id="api-name" name="name" placeholder="My API" required />
                                 </div>
-                                {% endfor %}
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="api-slug" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Slug</label>
+                                    <input class="input" type="text" id="api-slug" name="slug" placeholder="my-api" required />
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="api-upstream" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Upstream Base URL</label>
+                                    <input class="input" type="url" id="api-upstream" name="upstream_base_url" placeholder="https://api.example.com" required />
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="api-auth-header" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Auth Header Name</label>
+                                    <input class="input" type="text" id="api-auth-header" name="auth_header_name" placeholder="X-API-Key" value="X-API-Key" />
+                                </div>
                                 <button class="btn btn--primary" type="submit" style="width: 100%;">
                                     <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">add_box</span>
                                     Register API
@@ -180,16 +187,16 @@
                             <form method="post" action="{% url 'create-api-key' %}" id="api-key-form">
                                 {% csrf_token %}
                                 <div style="margin-bottom: 1rem;">
-                                    <label for="{{ api_key_form.plan_name.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Plan Name</label>
-                                    {{ api_key_form.plan_name }}
+                                    <label for="plan-name" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Plan Name</label>
+                                    <input class="input" type="text" id="plan-name" name="plan_name" placeholder="Starter Plan" required />
                                 </div>
                                 <div style="margin-bottom: 1rem;">
-                                    <label for="{{ api_key_form.requests_per_minute.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Requests per Minute</label>
-                                    {{ api_key_form.requests_per_minute }}
+                                    <label for="rpm" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Requests per Minute</label>
+                                    <input class="input" type="number" id="rpm" name="requests_per_minute" placeholder="60" min="1" required />
                                 </div>
                                 <div style="margin-bottom: 1rem;">
-                                    <label for="{{ api_key_form.requests_per_month.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Requests per Month</label>
-                                    {{ api_key_form.requests_per_month }}
+                                    <label for="rpmth" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">Requests per Month</label>
+                                    <input class="input" type="number" id="rpmth" name="requests_per_month" placeholder="10000" min="1" required />
                                 </div>
                                 <button class="btn btn--primary" type="submit" style="width: 100%;">
                                     <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">key</span>
@@ -209,9 +216,6 @@
 
     <script>
         (function () {
-            const form = document.getElementById('api-key-form');
-            if (!form) return;
-
             const getCookie = (name) => {
                 const value = `; ${document.cookie}`;
                 const parts = value.split(`; ${name}=`);
@@ -248,43 +252,51 @@
                 container.prepend(alert);
             };
 
-            form.addEventListener('submit', async (event) => {
-                event.preventDefault();
+            const handleForm = (formId) => {
+                const form = document.getElementById(formId);
+                if (!form) return;
 
-                const formData = new FormData(form);
-                const csrfToken = getCookie('csrftoken');
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
 
-                try {
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRFToken': csrfToken || ''
-                        },
-                        body: formData
-                    });
+                    const formData = new FormData(form);
+                    const csrfToken = getCookie('csrftoken');
 
-                    const payload = await response.json();
-                    if (response.ok && payload.success) {
-                        pushMessage(payload.message, true);
-                        form.reset();
-                    } else {
-                        if (payload.errors) {
-                            Object.values(payload.errors).forEach((errors) => {
-                                if (Array.isArray(errors)) {
-                                    errors.forEach((msg) => pushMessage(msg, false));
-                                } else {
-                                    pushMessage(String(errors), false);
-                                }
-                            });
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': csrfToken || ''
+                            },
+                            body: formData
+                        });
+
+                        const payload = await response.json();
+                        if (response.ok && payload.success) {
+                            pushMessage(payload.message || 'Success.', true);
+                            form.reset();
                         } else {
-                            pushMessage('Failed to create API Key.', false);
+                            if (payload.errors) {
+                                Object.values(payload.errors).forEach((err) => {
+                                    if (Array.isArray(err)) {
+                                        err.forEach((msg) => pushMessage(String(msg), false));
+                                    } else {
+                                        pushMessage(String(err), false);
+                                    }
+                                });
+                            } else {
+                                pushMessage(payload.error || 'Request failed.', false);
+                            }
                         }
+                    } catch (error) {
+                        pushMessage('Request failed.', false);
                     }
-                } catch (error) {
-                    pushMessage('Failed to create API Key.', false);
-                }
-            });
+                });
+            };
+
+            handleForm('api-form');
+            handleForm('api-key-form');
         })();
     </script>
 {% endblock content %}

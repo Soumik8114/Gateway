@@ -54,22 +54,13 @@
 
                 <section class="card card--padded" style="max-width: 560px;">
                     <h3 class="card__title">API Details</h3>
-                    <form method="post" action="{% url 'register-api' %}">
-                        {% csrf_token %}
-                        {% for field in api_form %}
-                        <div style="margin-bottom: 1rem;">
-                            <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                            <div style="color: #ff6b6b; font-size: 0.8em; margin-top: 4px;">{{ field.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                        <button class="btn btn--primary" type="submit" style="width: 100%;">
-                            <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">add_box</span>
-                            Register API
-                        </button>
-                    </form>
+                    <p style="margin: 0; color: #888; font-size: 0.9em;">API registration has moved to the Dashboard.</p>
+                    <div style="margin-top: 1rem;">
+                        <a class="btn btn--primary" href="{% url 'tenant-dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 1.2em;">dashboard</span>
+                            Go to Dashboard
+                        </a>
+                    </div>
                 </section>
             </div>
 

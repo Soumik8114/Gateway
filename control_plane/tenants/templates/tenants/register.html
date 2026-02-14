@@ -16,31 +16,103 @@
         </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="registerForm">
         {% csrf_token %}
 
-        {% for field in form %}
-            <div style="margin-bottom: 1.5rem;">
-                <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; color: #ccc;">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <div style="color: #ff6b6b; font-size: 0.875rem; margin-top: 0.25rem;">
-                        {{ field.errors|join:", " }}
-                    </div>
-                {% endif %}
-                {% if field.help_text %}
-                    <div style="color: #888; font-size: 0.875rem; margin-top: 0.25rem;">
-                        {{ field.help_text }}
-                    </div>
-                {% endif %}
-            </div>
-        {% endfor %}
+        <div style="margin-bottom: 1.5rem;">
+            <label for="tenant_name" style="display: block; margin-bottom: 0.5rem; color: #ccc;">Tenant Name</label>
+            <input class="input" type="text" id="tenant_name" name="tenant_name" placeholder="My Organization" required />
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="username" style="display: block; margin-bottom: 0.5rem; color: #ccc;">Username</label>
+            <input class="input" type="text" id="username" name="username" placeholder="username" required />
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="email" style="display: block; margin-bottom: 0.5rem; color: #ccc;">Email</label>
+            <input class="input" type="email" id="email" name="email" placeholder="user@example.com" />
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="password" style="display: block; margin-bottom: 0.5rem; color: #ccc;">Password</label>
+            <input class="input" type="password" id="password" name="password" placeholder="********" required />
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label for="confirm_password" style="display: block; margin-bottom: 0.5rem; color: #ccc;">Confirm Password</label>
+            <input class="input" type="password" id="confirm_password" name="confirm_password" placeholder="********" required />
+        </div>
 
         <button type="submit" style="width: 100%; padding: 0.75rem; background: #135bec; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 1rem;">Register</button>
+
+        <div id="errorMessage" style="color: #ff6b6b; margin-top: 1rem; text-align: center; display: none;"></div>
     </form>
 
     <div style="text-align: center; margin-top: 2rem; color: #ccc;">
         Already have an account? <a href="{% url 'login' %}" style="color: #135bec; text-decoration: none;">Login here</a>
     </div>
 </div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'none';
+        errorMessage.textContent = '';
+
+        const payload = {
+            tenant_name: document.getElementById('tenant_name').value,
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            confirm_password: document.getElementById('confirm_password').value,
+        };
+
+        fetch('/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(async (response) => {
+            const data = await response.json().catch(() => ({}));
+            if (response.ok && data.success) {
+                window.location.href = '/dashboard/';
+                return;
+            }
+
+            if (data.errors) {
+                const msgs = Object.entries(data.errors).map(([k, v]) => `${k}: ${v}`);
+                errorMessage.textContent = msgs.join(' | ');
+            } else {
+                errorMessage.textContent = data.error || 'Registration failed';
+            }
+            errorMessage.style.display = 'block';
+        })
+        .catch(() => {
+            errorMessage.textContent = 'An error occurred. Please try again.';
+            errorMessage.style.display = 'block';
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 {% endblock %}
