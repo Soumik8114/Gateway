@@ -19,6 +19,8 @@ from django.urls import path, include
 from tenants import views as tenants_views
 
 urlpatterns = [
+    path('', tenants_views.home_view, name='home'),
+    path('register/', tenants_views.register_view, name='register'),
     path('admin/', admin.site.urls),
     path('dashboard/',include('tenants.urls')),
     path('login/', tenants_views.login_view, name='login'),

@@ -7,10 +7,33 @@ from django.views.decorators.http import require_POST
 from django.contrib import messages
 import json
 
-from .forms import APIForm, APIKeyForm
+from .forms import APIForm, APIKeyForm, RegisterForm
 from apis.models import API, APIKey
 from billing.models import Plan
 from tenants.models import Tenant
+
+def home_view(request):
+    return render(request, "tenants/home.html")
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('tenant-dashboard')
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful! Welcome to your dashboard.")
+            return redirect('tenant-dashboard')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = RegisterForm()
+
+    return render(request, "tenants/register.html", {'form': form})
 
 @ensure_csrf_cookie
 def login_view(request):
