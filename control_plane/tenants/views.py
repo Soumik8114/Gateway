@@ -14,6 +14,9 @@ from tenants.models import Tenant
 
 @ensure_csrf_cookie
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('tenant-dashboard')
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -42,17 +45,36 @@ def tenant_dashboard(request):
     apis = API.objects.filter(tenant=tenant)
     api_keys = APIKey.objects.filter(tenant=tenant).select_related('plan')
 
+    api_form = APIForm()
     api_key_form = APIKeyForm()
 
     context = {
         'tenant': tenant,
         'apis': apis,
         'api_keys': api_keys,
+        'api_form': api_form,
         'api_key_form': api_key_form,
         'fastapi_base_url': 'http://localhost:7000'
     }
 
     return render(request, "tenants/dashboard.html", context)
+
+
+@login_required
+def my_apis(request):
+    try:
+        tenant = request.user.tenant
+    except Tenant.DoesNotExist:
+        return render(request, "tenants/no_tenant.html")
+
+    apis = API.objects.filter(tenant=tenant)
+    context = {
+        'tenant': tenant,
+        'apis': apis,
+        'fastapi_base_url': 'http://localhost:7000',
+    }
+
+    return render(request, "tenants/my_apis.html", context)
 
 @login_required
 def register_api(request):

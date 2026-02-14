@@ -17,11 +17,11 @@
                 </div>
                 <!-- Nav Links -->
                 <nav class="nav">
-                    <a class="nav__link nav__link--active" href="#" aria-current="page">
+                    <a class="nav__link nav__link--active" href="{% url 'tenant-dashboard' %}" aria-current="page">
                         <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
                         <span class="nav__label">Dashboard</span>
                     </a>
-                    <a class="nav__link" href="{% url 'register-api' %}">
+                    <a class="nav__link" href="{% url 'my-apis' %}">
                         <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
                         <span class="nav__label">My APIs</span>
                     </a>
@@ -144,14 +144,26 @@
 
                     <!-- Forms Column -->
                     <div class="stack">
-                        <!-- Register API Link -->
+                        <!-- Register API -->
                         <section class="card card--padded">
                             <h3 class="card__title">Register New API</h3>
-                            <p style="margin-bottom: 1rem; color: #888; font-size: 0.9em;">Create a new API entry in a separate page.</p>
-                            <a class="btn btn--primary" href="{% url 'register-api' %}" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-                                <span class="material-symbols-outlined" style="font-size: 1.2em;">add_box</span>
-                                Go to API Registration
-                            </a>
+                            <p style="margin-bottom: 1rem; color: #888; font-size: 0.9em;">Create a new API entry from the dashboard.</p>
+                            <form method="post" action="{% url 'create-api' %}" id="api-form">
+                                {% csrf_token %}
+                                {% for field in api_form %}
+                                <div style="margin-bottom: 1rem;">
+                                    <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-size: 0.9em; color: #ccc;">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                    <div style="color: #ff6b6b; font-size: 0.8em; margin-top: 4px;">{{ field.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                <button class="btn btn--primary" type="submit" style="width: 100%;">
+                                    <span class="material-symbols-outlined" style="font-size: 1.2em; vertical-align: bottom; margin-right: 5px;">add_box</span>
+                                    Register API
+                                </button>
+                            </form>
                         </section>
 
                         <!-- Generate Key Form -->

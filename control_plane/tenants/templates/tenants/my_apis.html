@@ -1,0 +1,105 @@
+{% extends "tenants/base.html" %}
+{% block title %}My APIs{% endblock %}
+{% block content %}
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar__top">
+                <div class="brand">
+                    <div class="brand__icon" aria-hidden="true">
+                        <span class="material-symbols-outlined">hub</span>
+                    </div>
+                    <div class="brand__text">
+                        <h1 class="brand__title">API Gateway</h1>
+                        <p class="brand__subtitle">Tenant Admin</p>
+                    </div>
+                </div>
+                <nav class="nav">
+                    <a class="nav__link" href="{% url 'tenant-dashboard' %}">
+                        <span class="material-symbols-outlined" aria-hidden="true">dashboard</span>
+                        <span class="nav__label">Dashboard</span>
+                    </a>
+                    <a class="nav__link nav__link--active" href="{% url 'my-apis' %}" aria-current="page">
+                        <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
+                        <span class="nav__label">My APIs</span>
+                    </a>
+                    <a class="nav__link" href="#">
+                        <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+                        <span class="nav__label">Billing</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar__left">
+                    <h2 class="topbar__title">My Registered APIs</h2>
+                </div>
+                <div class="topbar__right">
+                    <div class="user">
+                        <div class="user__meta" aria-label="Signed in user">
+                            <p class="user__name">{{ request.user.username }}</p>
+                            <p class="user__plan">{{ tenant.name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                {% if messages %}
+                <div class="messages" style="margin-bottom: 20px;">
+                    {% for message in messages %}
+                    <div class="alert" style="padding: 15px; background: #333; color: #fff; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid #135bec;">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <section class="card">
+                    <div class="card__header">
+                        <h3 class="card__title">My APIs</h3>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr class="table__head-row">
+                                    <th>Name</th>
+                                    <th>Slug</th>
+                                    <th>Upstream</th>
+                                    <th>Access Link</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table__body">
+                                {% for api in apis %}
+                                <tr class="table__row">
+                                    <td>
+                                        <div class="endpoint">
+                                            <span class="endpoint__name">{{ api.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ api.slug }}</td>
+                                    <td>{{ api.upstream_base_url }}</td>
+                                    <td>
+                                        <code style="background: #2a2a2a; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; color: #4af;">
+                                            {{ fastapi_base_url }}/{{ tenant.slug }}/{{ api.slug }}/
+                                        </code>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr class="table__row">
+                                    <td colspan="4" style="text-align: center; padding: 20px; color: #888;">No APIs registered yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="footer">
+                <p>© 2023 API Gateway Management.</p>
+            </footer>
+        </main>
+    </div>
+{% endblock content %}
