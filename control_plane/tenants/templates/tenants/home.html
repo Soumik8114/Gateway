@@ -1,0 +1,29 @@
+{% extends "tenants/base.html" %}
+
+{% block title %}API Gateway - Home{% endblock %}
+
+{% block content %}
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #1e1e1e; border-bottom: 1px solid #333;">
+    <h1 style="margin: 0; font-size: 1.5rem; color: #fff;">API Gateway</h1>
+    <nav>
+        {% if user.is_authenticated %}
+            <a href="{% url 'tenant-dashboard' %}" style="text-decoration: none; color: #fff; margin-left: 1rem; padding: 0.5rem 1rem; background-color: #135bec; border-radius: 4px;">Dashboard</a>
+        {% else %}
+            <a href="{% url 'login' %}" style="text-decoration: none; color: #fff; margin-left: 1rem;">Login</a>
+            <a href="{% url 'register' %}" style="text-decoration: none; color: #fff; margin-left: 1rem; padding: 0.5rem 1rem; background-color: #135bec; border-radius: 4px;">Register</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main style="padding: 4rem 2rem; text-align: center; color: #fff;">
+    <h2 style="font-size: 3rem; margin-bottom: 1rem;">Modern API Gateway for your services</h2>
+    <p style="font-size: 1.25rem; color: #ccc; max-width: 600px; margin: 0 auto 3rem;">
+        Secure, manage, and monitor your APIs with ease.
+        Register now to get started.
+    </p>
+
+    {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" style="display: inline-block; text-decoration: none; color: #fff; padding: 1rem 2rem; background-color: #135bec; border-radius: 8px; font-size: 1.25rem; font-weight: 600;">Get Started</a>
+    {% endif %}
+</main>
+{% endblock %}

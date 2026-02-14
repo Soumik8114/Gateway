@@ -1,16 +1,46 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 import json
 
-from .forms import APIForm, APIKeyForm
+from .forms import APIForm, APIKeyForm, RegisterForm
 from apis.models import API, APIKey
 from billing.models import Plan
 from tenants.models import Tenant
+
+def home_view(request):
+    return render(request, "tenants/home.html")
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('tenant-dashboard')
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful! Welcome to your dashboard.")
+            return redirect('tenant-dashboard')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = RegisterForm()
+
+    return render(request, "tenants/register.html", {'form': form})
+
+
+@login_required
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 @ensure_csrf_cookie
 def login_view(request):

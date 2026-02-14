@@ -42,6 +42,13 @@
                             <p class="user__plan">{{ tenant.name }}</p>
                         </div>
                     </div>
+                    <form method="post" action="{% url 'logout' %}" style="margin-left: 12px;">
+                        {% csrf_token %}
+                        <button class="btn btn--primary" type="submit" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 12px;">
+                            <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 1.2em;">logout</span>
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </header>
 
