@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  control_plane:
+    build:
+      context: .
+      dockerfile: control_plane/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/data
+    environment:
+      - DJANGO_SETTINGS_MODULE=control_plane.settings
+      - DATABASE_PATH=/data/db.sqlite3
+      - ALLOWED_HOSTS=*
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  data_plane:
+    build:
+      context: .
+      dockerfile: data_plane/Dockerfile
+    ports:
+      - "7000:7000"
+    volumes:
+      - sqlite_data:/data
+    environment:
+      - DATABASE_URL=sqlite:////data/db.sqlite3
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+      control_plane:
+        condition: service_started
+
+volumes:
+  redis_data:
+  sqlite_data:
