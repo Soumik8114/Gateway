@@ -16,6 +16,7 @@ A **multi-tenant API Gateway** built with a split-architecture design — a **Dj
   - [Installation](#installation)
   - [Database Setup](#database-setup)
   - [Running the Services](#running-the-services)
+  - [Running with Docker (Compose)](#running-with-docker-compose)
 - [Usage](#usage)
   - [Register a Tenant](#register-a-tenant)
   - [Register an API](#register-an-api)
@@ -133,6 +134,7 @@ Gateway/
 
 - Python 3.10+
 - Redis (optional — falls back to `fakeredis` for development)
+- Docker + Docker Compose (optional — for the fully dockerized setup)
 
 ### Installation
 
@@ -175,6 +177,70 @@ python manage.py runserver 8000
 
 ```bash
 uvicorn data_plane.fastapi_app.main:app --host 0.0.0.0 --port 7000 --reload
+```
+
+---
+
+### Running with Docker (Compose)
+
+This repo includes a `docker-compose.yml` that runs the full stack:
+
+- `control_plane` (Django) on `http://localhost:8000`
+- `data_plane` (FastAPI) on `http://localhost:7000`
+- `redis` on `localhost:6379`
+
+The Control Plane and Data Plane share the same SQLite DB via a named Docker volume mounted at `/data/db.sqlite3`.
+
+**Start (foreground):**
+
+```bash
+docker compose up --build
+```
+
+**Start (background):**
+
+```bash
+docker compose up --build -d
+```
+
+**Stop:**
+
+```bash
+docker compose down
+```
+
+**Stop and remove volumes (clears Redis + SQLite data):**
+
+```bash
+docker compose down -v
+```
+
+#### Django management commands (Docker)
+
+The `control_plane` container runs migrations automatically on startup, but you’ll still likely want a superuser for Django Admin.
+
+**Create a superuser:**
+
+```bash
+docker compose exec control_plane python manage.py createsuperuser
+```
+
+**Run migrations manually (optional):**
+
+```bash
+docker compose exec control_plane python manage.py migrate
+```
+
+**Seed test data:**
+
+```bash
+docker compose exec control_plane python setup_test_data.py
+```
+
+**Run tests:**
+
+```bash
+docker compose exec control_plane python manage.py test
 ```
 
 ---
